@@ -16,7 +16,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
@@ -26,8 +26,11 @@ jobs:
         with:
           gradle-version: '8.9'
 
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
+      - name: Check preinstalled Android SDK
+        run: |
+          echo "ANDROID_HOME=$ANDROID_HOME"
+          ls "${ANDROID_HOME:-/usr/local/lib/android/sdk}/platforms" || true
+          yes | sdkmanager --licenses > /dev/null 2>&1 || true
 
       - name: Assemble debug APK
         run: gradle :app:assembleDebug --stacktrace
