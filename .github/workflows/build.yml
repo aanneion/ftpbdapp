@@ -33,7 +33,17 @@ jobs:
           yes | sdkmanager --licenses > /dev/null 2>&1 || true
 
       - name: Assemble debug APK
-        run: gradle :app:assembleDebug --stacktrace
+        run: |
+          set +e
+          gradle :app:assembleDebug --stacktrace --console=plain > build.log 2>&1
+          code=$?
+          if [ $code -ne 0 ]; then
+            grep -E '^e: |error: |FAILURE|What went wrong|Execution failed' build.log | head -40 \
+              | while IFS= read -r line; do echo "::error::$line"; done
+            tail -5 build.log
+            exit $code
+          fi
+          tail -5 build.log
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
