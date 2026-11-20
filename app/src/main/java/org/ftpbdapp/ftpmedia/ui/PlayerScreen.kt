@@ -30,7 +30,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import androidx.media3.exoplayer.ExoPlayer
-import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
+import androidx.media3.exoplayer.source.ProgressiveMediaSource
 import androidx.media3.ui.AspectRatioFrameLayout
 import androidx.media3.ui.PlayerView
 import org.ftpbdapp.ftpmedia.data.Source
@@ -48,19 +48,16 @@ fun PlayerScreen(
 
     val context = LocalContext.current
     val player = remember(source.id, entry.path) {
-        val mediaSourceFactory = DefaultMediaSourceFactory(
-            context,
-            FtpDataSourceFactory(source)
-        )
+        val mediaItem = MediaItem.Builder()
+            .setUri(buildFtpUri(source, entry.path))
+            .setMediaMetadata(MediaMetadata.Builder().setTitle(entry.name).build())
+            .build()
+        val mediaSource = ProgressiveMediaSource.Factory(FtpDataSourceFactory(source))
+            .createMediaSource(mediaItem)
         ExoPlayer.Builder(context)
-            .setMediaSourceFactory(mediaSourceFactory)
             .build()
             .apply {
-                val item = MediaItem.Builder()
-                    .setUri(buildFtpUri(source, entry.path))
-                    .setMediaMetadata(MediaMetadata.Builder().setTitle(entry.name).build())
-                    .build()
-                setMediaItem(item)
+                setMediaSource(mediaSource)
                 playWhenReady = true
                 prepare()
             }
