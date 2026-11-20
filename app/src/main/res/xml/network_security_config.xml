@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <!-- Cleartext is needed for plain FTP and cleartext HTTP open directories the
+         user explicitly adds. Certificate-transparent HTTPS is unaffected. -->
+    <base-config cleartextTrafficPermitted="true" />
+</network-security-config>
